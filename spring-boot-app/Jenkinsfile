@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         GIT_URL      = 'https://github.com/bhupal2027/Spring_boot_APP_CI-CD'
-        SONARQUBE_ID = 'sonarqube'
+        SONARQUBE_ID = 'SonarQubeServer'
         IMAGE_NAME   = 'springboot-demo'
         DOCKERHUB_CREDS = 'dockerhub-creds'
     }
