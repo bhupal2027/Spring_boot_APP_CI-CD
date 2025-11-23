@@ -23,12 +23,14 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv("${SONARQUBE_ID}") {
-                    sh """
-                    mvn clean verify sonar:sonar \
-                    -DskipTests \
-                    -Dsonar.projectKey=${IMAGE_NAME}
-                    """
+                dir('spring-boot-app') {
+                    withSonarQubeEnv("${SONARQUBE_ID}") {
+                        sh """
+                        mvn clean verify sonar:sonar \
+                        -DskipTests \
+                        -Dsonar.projectKey=${IMAGE_NAME}
+                        """
+                    }
                 }
             }
         }
@@ -43,15 +45,19 @@ pipeline {
 
         stage('Build JAR') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                dir('spring-boot-app') {
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh """
-                docker build -t ${IMAGE_NAME}:latest .
-                """
+                dir('spring-boot-app') {
+                    sh """
+                    docker build -t ${IMAGE_NAME}:latest .
+                    """
+                }
             }
         }
 
@@ -66,9 +72,9 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(
-                        credentialsId: "${DOCKERHUB_CREDS}",
-                        usernameVariable: 'USER',
-                        passwordVariable: 'PASS'
+                    credentialsId: "${DOCKERHUB_CREDS}",
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
                 )]) {
                     sh """
                     echo "$PASS" | docker login -u "$USER" --password-stdin
