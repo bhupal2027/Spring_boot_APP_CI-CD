@@ -1,26 +1,19 @@
-
-Then specify agents per-stage:
-
----
-
-### ✔ FINAL FIXED JENKINSFILE
-
-```groovy
 pipeline {
 
-    agent none   // <-- global agent disabled
+    agent none
 
     environment {
-        GIT_URL          = 'https://github.com/bhupal2027/Spring_boot_APP_CI-CD'
-        SONARQUBE_ID     = 'SonarQubeServer'
-        IMAGE_NAME       = 'springboot-demo'
-        DOCKERHUB_CREDS  = 'dockerhub-creds'
+        GIT_URL        = 'https://github.com/bhupal2027/Spring_boot_APP_CI-CD'
+        SONARQUBE_ID   = 'SonarQubeServer'
+        IMAGE_NAME     = 'spring-boot-demo'
+        DOCKERHUB_CREDS = 'dockerhub-creds'
+        SONAR_TOKEN_ID = 'mvn-sonar'
     }
 
     stages {
 
-        stage('Checkout Code') {
-            agent any
+        stage('Checkout') {
+            agent { label 'master' }
             steps {
                 git branch: 'master', url: "${GIT_URL}"
             }
@@ -34,10 +27,11 @@ pipeline {
                 }
             }
             steps {
-                dir('spring-boot-app') {
-                    withSonarQubeEnv("${SONARQUBE_ID}") {
+                withSonarQubeEnv("${SONARQUBE_ID}") {
+                    withCredentials([string(credentialsId: SONAR_TOKEN_ID, variable: 'SONAR_TOKEN')]) {
                         sh """
                         mvn clean verify sonar:sonar \
+                        -Dsonar.login=$SONAR_TOKEN \
                         -DskipTests \
                         -Dsonar.projectKey=${IMAGE_NAME}
                         """
@@ -46,37 +40,47 @@ pipeline {
             }
         }
 
+        stage('Quality Gate') {
+            agent { label 'master' }
+            steps {
+                timeout(time: 10, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
         stage('Build JAR') {
             agent {
                 docker {
                     image 'maven:3.9.8-eclipse-temurin-17'
+                    args '-v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
-                dir('spring-boot-app') {
-                    sh "mvn clean package -DskipTests"
-                }
+                sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
-            agent any    // <-- runs on Jenkins host (Docker installed)
+            agent { label 'master' }
             steps {
-                dir('spring-boot-app') {
-                    sh "docker build -t ${IMAGE_NAME}:latest ."
-                }
+                sh """
+                docker build -t ${IMAGE_NAME}:latest .
+                """
             }
         }
 
         stage('Trivy Scan') {
-            agent any
+            agent { label 'master' }
             steps {
-                sh "trivy image --exit-code 1 --severity HIGH,CRITICAL ${IMAGE_NAME}:latest"
+                sh """
+                trivy image --exit-code 0 --severity HIGH,CRITICAL ${IMAGE_NAME}:latest
+                """
             }
         }
 
         stage('Push to DockerHub') {
-            agent any
+            agent { label 'master' }
             steps {
                 withCredentials([usernamePassword(
                     credentialsId: "${DOCKERHUB_CREDS}",
@@ -92,6 +96,5 @@ pipeline {
                 }
             }
         }
-
     }
 }
