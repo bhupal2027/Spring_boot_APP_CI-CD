@@ -23,33 +23,39 @@ pipeline {
 
         stage('SonarQube Scan') {
             steps {
-                withSonarQubeEnv("${SONARQUBE_ID}") {
-                    sh """
-                    mvn clean verify sonar:sonar \
-                        -DskipTests \
-                        -Dsonar.projectKey=${IMAGE_NAME}
-                    """
+                dir('spring-boot-app') {        // 👈 FIX
+                    withSonarQubeEnv("${SONARQUBE_ID}") {
+                        sh """
+                        mvn clean verify sonar:sonar \
+                            -DskipTests \
+                            -Dsonar.projectKey=${IMAGE_NAME}
+                        """
+                    }
                 }
             }
         }
 
         stage('Quality Gate (Skip Webhook)') {
             steps {
-                echo "Skipping waitForQualityGate because SonarQube webhook cannot reach local Jenkins."
+                echo "Skipping Quality Gate because webhook cannot reach local Jenkins."
             }
         }
 
         stage('Build JAR') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                dir('spring-boot-app') {        // 👈 FIX
+                    sh 'mvn clean package -DskipTests'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh """
-                docker build -t ${IMAGE_NAME}:latest .
-                """
+                dir('spring-boot-app') {        // 👈 FIX
+                    sh """
+                    docker build -t ${IMAGE_NAME}:latest .
+                    """
+                }
             }
         }
 
@@ -68,6 +74,7 @@ pipeline {
                     usernameVariable: 'USER',
                     passwordVariable: 'PASS'
                 )]) {
+
                     sh """
                     echo "$PASS" | docker login -u "$USER" --password-stdin
                     docker tag ${IMAGE_NAME}:latest $USER/${IMAGE_NAME}:latest
