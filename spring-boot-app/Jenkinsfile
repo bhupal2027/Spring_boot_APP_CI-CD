@@ -1,0 +1,83 @@
+pipeline {
+    agent {
+        docker {
+            image 'maven:3.9.8-eclipse-temurin-17'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
+
+    environment {
+        GIT_URL      = 'https://github.com/bhupal2027/Spring_boot_APP_CI-CD'
+        SONARQUBE_ID = 'sonarqube'
+        IMAGE_NAME   = 'springboot-demo'
+        DOCKERHUB_CREDS = 'dockerhub-creds'
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main', url: "${GIT_URL}"
+            }
+        }
+
+        stage('SonarQube Scan') {
+            steps {
+                withSonarQubeEnv("${SONARQUBE_ID}") {
+                    sh """
+                    mvn clean verify sonar:sonar \
+                    -DskipTests \
+                    -Dsonar.projectKey=${IMAGE_NAME}
+                    """
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('Build JAR') {
+            steps {
+                sh 'mvn clean package -DskipTests'
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                sh """
+                docker build -t ${IMAGE_NAME}:latest .
+                """
+            }
+        }
+
+        stage('Trivy Scan') {
+            steps {
+                sh """
+                trivy image --exit-code 1 --severity HIGH,CRITICAL ${IMAGE_NAME}:latest
+                """
+            }
+        }
+
+        stage('Push to DockerHub') {
+            steps {
+                withCredentials([usernamePassword(
+                        credentialsId: "${DOCKERHUB_CREDS}",
+                        usernameVariable: 'USER',
+                        passwordVariable: 'PASS'
+                )]) {
+                    sh """
+                    echo "$PASS" | docker login -u "$USER" --password-stdin
+                    docker tag ${IMAGE_NAME}:latest $USER/${IMAGE_NAME}:latest
+                    docker push $USER/${IMAGE_NAME}:latest
+                    docker logout
+                    """
+                }
+            }
+        }
+    }
+}
