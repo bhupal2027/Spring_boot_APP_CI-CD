@@ -2,39 +2,42 @@ pipeline {
     agent {
         docker {
             image 'maven:3.9.8-eclipse-temurin-17'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
+            args '-v /var/run/docker.sock:/var/run/docker.sock -v $HOME/.m2:/root/.m2'
         }
     }
 
     environment {
-        GIT_URL      = 'https://github.com/bhupal2027/Spring_boot_APP_CI-CD'
-        SONARQUBE_ID = 'SonarQubeServer'
-        IMAGE_NAME   = 'springboot-demo'
-        DOCKERHUB_CREDS = 'dockerhub-creds'
+        GIT_URL          = 'https://github.com/bhupal2027/Spring_boot_APP_CI-CD'
+        SONARQUBE_ID     = 'SonarQubeServer'
+        IMAGE_NAME       = 'springboot-demo'
+        DOCKERHUB_CREDS  = 'dockerhub-creds'
     }
 
     stages {
 
+        /* -------------------- CHECKOUT -------------------- */
         stage('Checkout') {
             steps {
                 git branch: 'master', url: "${GIT_URL}"
             }
         }
 
+        /* -------------------- SONAR SCAN -------------------- */
         stage('SonarQube Scan') {
             steps {
                 dir('spring-boot-app') {
                     withSonarQubeEnv("${SONARQUBE_ID}") {
                         sh """
                         mvn clean verify sonar:sonar \
-                        -DskipTests \
-                        -Dsonar.projectKey=${IMAGE_NAME}
+                            -DskipTests \
+                            -Dsonar.projectKey=${IMAGE_NAME}
                         """
                     }
                 }
             }
         }
 
+        /* -------------------- QUALITY GATE -------------------- */
         stage('Quality Gate') {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
@@ -43,6 +46,7 @@ pipeline {
             }
         }
 
+        /* -------------------- BUILD JAR -------------------- */
         stage('Build JAR') {
             steps {
                 dir('spring-boot-app') {
@@ -51,6 +55,7 @@ pipeline {
             }
         }
 
+        /* -------------------- BUILD DOCKER IMAGE -------------------- */
         stage('Build Docker Image') {
             steps {
                 dir('spring-boot-app') {
@@ -61,6 +66,7 @@ pipeline {
             }
         }
 
+        /* -------------------- TRIVY SCAN -------------------- */
         stage('Trivy Scan') {
             steps {
                 sh """
@@ -69,6 +75,7 @@ pipeline {
             }
         }
 
+        /* -------------------- PUSH TO DOCKERHUB -------------------- */
         stage('Push to DockerHub') {
             steps {
                 withCredentials([usernamePassword(
