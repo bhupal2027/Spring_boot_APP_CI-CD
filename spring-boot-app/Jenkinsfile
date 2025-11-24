@@ -10,7 +10,7 @@ pipeline {
         SONAR_TOKEN_ID  = 'mvn-sonar'
         AWS_CREDS_ID    = 'aws-creds'
         AWS_REGION      = 'ap-south-1'
-        EKS_CLUSTER     = 'my-eks-cluster'       // <-- Updated here
+        EKS_CLUSTER     = 'my-eks-cluster'
     }
 
     stages {
@@ -48,7 +48,7 @@ pipeline {
         stage('Quality Gate') {
             agent any
             steps {
-                echo "Skipping Quality Gate check because SonarQube webhook cannot reach local Jenkins."
+                echo "Skipping Quality Gate because Jenkins cannot receive SonarQube webhook on local server."
             }
         }
 
@@ -97,7 +97,7 @@ pipeline {
                     echo "$PASS" | docker login -u "$USER" --password-stdin
                     docker tag ${IMAGE_NAME}:latest $USER/${IMAGE_NAME}:latest
                     docker push $USER/${IMAGE_NAME}:latest
-                    docker.logout
+                    docker logout
                     """
                 }
             }
@@ -108,20 +108,19 @@ pipeline {
             steps {
                 withAWS(credentials: "${AWS_CREDS_ID}", region: "${AWS_REGION}") {
                     sh """
-                    echo 'Updating kubeconfig for EKS...'
+                    echo 'Updating kubeconfig for EKS cluster...'
                     aws eks update-kubeconfig \
                         --region ${AWS_REGION} \
                         --name ${EKS_CLUSTER}
 
-                    echo 'Applying Kubernetes manifests...'
+                    echo 'Applying Kubernetes Manifests...'
                     kubectl apply -f spring-boot-app/k8s/deployment.yaml
                     kubectl apply -f spring-boot-app/k8s/service.yaml
 
-                    echo 'Deployment successful!'
+                    echo 'Deployment Successful!'
                     """
                 }
             }
         }
-
     }
 }
