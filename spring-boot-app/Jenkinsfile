@@ -8,6 +8,9 @@ pipeline {
         IMAGE_NAME      = 'spring-boot-demo'
         DOCKERHUB_CREDS = 'dockerhub-creds'
         SONAR_TOKEN_ID  = 'mvn-sonar'
+        AWS_CREDS_ID    = 'aws-creds'
+        AWS_REGION      = 'ap-south-1'
+        EKS_CLUSTER     = 'my-eks-cluster'       // <-- Updated here
     }
 
     stages {
@@ -94,10 +97,31 @@ pipeline {
                     echo "$PASS" | docker login -u "$USER" --password-stdin
                     docker tag ${IMAGE_NAME}:latest $USER/${IMAGE_NAME}:latest
                     docker push $USER/${IMAGE_NAME}:latest
-                    docker logout
+                    docker.logout
                     """
                 }
             }
         }
+
+        stage('Deploy to EKS') {
+            agent any
+            steps {
+                withAWS(credentials: "${AWS_CREDS_ID}", region: "${AWS_REGION}") {
+                    sh """
+                    echo 'Updating kubeconfig for EKS...'
+                    aws eks update-kubeconfig \
+                        --region ${AWS_REGION} \
+                        --name ${EKS_CLUSTER}
+
+                    echo 'Applying Kubernetes manifests...'
+                    kubectl apply -f spring-boot-app/k8s/deployment.yaml
+                    kubectl apply -f spring-boot-app/k8s/service.yaml
+
+                    echo 'Deployment successful!'
+                    """
+                }
+            }
+        }
+
     }
 }
