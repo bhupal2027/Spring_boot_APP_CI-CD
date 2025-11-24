@@ -44,7 +44,9 @@ https://github.com/bhupal2027/Spring_boot_APP_CI-CD/blob/09c74af8a0b88f00cf8e7d2
 
 ## 🐳 **Dockerfile**
 FROM eclipse-temurin:11-jre
+
 COPY target/*.jar app.jar
+
 ENTRYPOINT ["java","-jar","/app.jar"]
 
 🛠️ Jenkins CI/CD Pipeline (Jenkinsfile)
