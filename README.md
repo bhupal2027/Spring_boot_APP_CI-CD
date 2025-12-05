@@ -736,98 +736,14 @@ git push origin feature/your-feature-name
 3. SonarQube quality gate must pass
 4. Merge to main branch
 
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2024 Bhupal
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
----
 
 ## 📞 Contact & Support
 
 ### Project Maintainer
 - **Name**: Bhupal
-- **Email**: bhupal2027@example.com
+- **Email**: kotlabhupalreddy3443@gmail.com
 - **GitHub**: [@bhupal2027](https://github.com/bhupal2027)
-- **LinkedIn**: [linkedin.com/in/bhupal2027](https://linkedin.com/in/bhupal2027)
-
-### Getting Help
-
-- 📖 **Documentation**: Check the [Wiki](../../wiki)
-- 🐛 **Bug Reports**: [Create an issue](../../issues/new?template=bug_report.md)
-- 💡 **Feature Requests**: [Create an issue](../../issues/new?template=feature_request.md)
-- 💬 **Discussions**: [GitHub Discussions](../../discussions)
-- 📧 **Email**: bhupal2027@example.com
-
-### Community
-
-- ⭐ Star this repository if you find it helpful!
-- 🔔 Watch for updates and new features
-- 🍴 Fork to create your own version
-
----
-
-## 🗺 Roadmap
-
-### Current Version: 1.0.0
-
-### Planned Features
-
-#### Version 1.1.0
-- [ ] GraphQL API support
-- [ ] Redis caching layer
-- [ ] Message queue integration (RabbitMQ/Kafka)
-- [ ] Enhanced monitoring with Grafana dashboards
-
-#### Version 1.2.0
-- [ ] Microservices architecture migration
-- [ ] Service mesh implementation (Istio)
-- [ ] Multi-region deployment
-- [ ] Advanced security features (OAuth2, SAML)
-
-#### Version 2.0.0
-- [ ] Event-driven architecture
-- [ ] Serverless deployment options
-- [ ] Machine learning integration
-- [ ] Advanced analytics dashboard
-
----
-
-## 📊 Project Status
-
-![Build Status](https://img.shields.io/github/actions/workflow/status/bhupal2027/Spring_boot_APP_CI-CD/ci-cd.yml?branch=main)
-![Code Coverage](https://img.shields.io/codecov/c/github/bhupal2027/Spring_boot_APP_CI-CD)
-![Quality Gate](https://img.shields.io/sonar/quality_gate/bhupal2027_Spring_boot_APP_CI-CD?server=https%3A%2F%2Fsonarcloud.io)
-![Last Commit](https://img.shields.io/github/last-commit/bhupal2027/Spring_boot_APP_CI-CD)
-![Issues](https://img.shields.io/github/issues/bhupal2027/Spring_boot_APP_CI-CD)
-![Pull Requests](https://img.shields.io/github/issues-pr/bhupal2027/Spring_boot_APP_CI-CD)
-
----
+- **LinkedIn**: https://www.linkedin.com/in/kotlabhupalreddy/
 
 ## 🙏 Acknowledgments
 
@@ -836,25 +752,6 @@ SOFTWARE.
 - SonarQube for code quality analysis
 - Docker for a containerization platform
 - All contributors who helped improve this project
-
----
-
-## 📚 Additional Resources
-
-### Learning Resources
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [Docker Documentation](https://docs.docker.com/)
-- [Kubernetes Documentation](https://kubernetes.io/docs/)
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-
-### Related Projects
-- [Spring Boot Examples](https://github.com/spring-projects/spring-boot/tree/main/spring-boot-samples)
-- [Awesome Spring Boot](https://github.com/stunstunstun/awesome-spring-boot)
-- [DevOps Best Practices](https://github.com/topics/devops)
-
----
-
-<div align="center">
 
 **Made with ❤️ by Bhupal**
 
